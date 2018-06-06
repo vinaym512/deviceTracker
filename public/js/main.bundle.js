@@ -63,24 +63,19 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports) {
+/******/ ({
 
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 1 */
+/***/ 2:
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+(function webpackMissingModule() { throw new Error("Cannot find module \"./entry.js\""); }());
+(function webpackMissingModule() { throw new Error("Cannot find module \"bundle.js\""); }());
 
-
-__webpack_require__(0);
 
 /***/ })
-/******/ ]);
-//# sourceMappingURL=home.bundle.js.map
+
+/******/ });
+//# sourceMappingURL=main.bundle.js.map

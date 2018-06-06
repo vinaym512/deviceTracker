@@ -8,8 +8,44 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <!-- <script type="text/javascript" src="handlebar.js"></script> -->
         <!-- Place favicon.ico in the root directory -->
     </head>
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills float-right">
+            <!-- <li class="nav-item">
+              <a class="nav-link " href="/">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link " href="/login">Login <span class="sr-only">(current)</span></a>
+            </li> -->
+            {{#if isAuthenticated}}
+                <li class="nav-item">
+                  <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/logout">Logout</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/register">ResetPassword</a>
+                </li>
+                {{else}}
+                <li class="nav-item">
+                  <a class="nav-link" href="/login">Login</a>
+                </li>
+                <!-- <li class="nav-item">
+                  <a class="nav-link" href="/register">Register</a>
+                </li> -->
+            {{/if}}
+            <!-- <li class="nav-item">
+              <a class="nav-link" href="#">Contact</a>
+            </li> -->
+          </ul>
+        </nav>
+        <h3 class="text-muted">Device Tracker</h3>
+      </div>
     <body>
         <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>

@@ -1,0 +1,101 @@
+{{> header }}
+
+<!-- Remove this later on -->
+<script>
+    {{#if this}}
+    console.log("*********what data am I getting?**********", {{{json this}}});
+    {{/if}}
+</script>
+
+<div class="container">
+    <h2>Device Availability</h2>
+    <h3>Welcome {{loggedUser}}</h3>
+    <h4>{{msg}}</h4>
+   <form method="POST" action="/book_device">
+        <div>
+            <button type="button" class="btn btn-primary"> Martian Devices</button>
+            {{#each deviceData}}
+            {{#if mlocation}}
+                <button 
+                    class="
+                     btn btn-lg
+                        {{#if instore}}
+                            availableBG
+                        {{else}}
+                            bookedBG
+                        {{/if}}
+                    "
+                    {{#if userid}}
+                        enabled
+                    {{else if instore}}
+                        enabled
+                    {{else}}
+                        disabled
+                    {{/if}}                    
+                    id="btn11"
+                    type="submit"
+                    value={{device_id}}/{{username}}
+                    name=device">
+                        <span class="device-name">
+                            {{device_id}}
+                        </span>
+                         <br>
+                        <span class="os-version">
+                            OS-{{os_version}}
+                        </span>
+                        <br>
+                        <span class="username">
+                            {{username}}
+                        </span>
+                        <br>
+                        <span class="datentime">{{date_allocated}}</span>
+                </button>
+                {{/if}}
+            {{/each}}
+            
+        </div>
+
+         <div>
+            <button type="button" class="btn btn-primary"> Foxsports Devices</button>
+            {{#each deviceData}}
+            {{#if flocation}}
+                <button 
+                    class="
+                     btn btn-lg
+                        {{#if instore}}
+                            availableBG
+                        {{else}}
+                            bookedBG
+                        {{/if}}
+                    "
+                    {{#if userid}}
+                        enabled
+                    {{else if instore}}
+                        enabled
+                    {{else}}
+                        disabled
+                    {{/if}}                    
+                    id="btn11"
+                    type="submit"
+                    value={{device_id}}/{{username}}
+                    name=device">
+                        <span class="device-name">
+                            {{device_id}}
+                        </span>
+                        <br>
+                        <span class="os-version">
+                            OS-{{os_version}}
+                        </span>
+                        <br>
+                        <span class="username">
+                            {{username}}
+                        </span>
+                        <br>
+                        <span class="datentime">{{date_allocated}}</span>
+                </button>
+                {{/if}}
+            {{/each}}
+        </div>
+     </form>
+</div> 
+            
