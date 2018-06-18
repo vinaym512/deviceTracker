@@ -77,7 +77,6 @@ passport.use(new LocalStrategy(
     console.log(password);
 
     const db = require('./db');
-    //db.query('SELECT user_id, password from users where username = ?', [username], function(err, result, fields){
       db.query('SELECT user_id, password from users where email = ?', [username], function(err, result, fields){
       if(err) { done(err)};
       if(result.length == 0){
@@ -85,7 +84,7 @@ passport.use(new LocalStrategy(
       }else{
         console.log('@@@@@@@@@@@@@Pasport user@@@@@@@@@',result[0]);
         const hash = result[0].password.toString();
-        //const hash = result[0];
+        
         bcrypt.compare(password, hash, function(err, response){
           if(response == true){
             return done(null, {user_id:result[0].user_id});

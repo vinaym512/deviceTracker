@@ -10,6 +10,7 @@
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <!-- <script type="text/javascript" src="handlebar.js"></script> -->
         <!-- Place favicon.ico in the root directory -->
     </head>
@@ -31,6 +32,13 @@
                 <li class="nav-item">
                   <a class="nav-link" href="/register">ResetPassword</a>
                 </li>
+                  {{#if isAdmin}}
+                    <li class="nav-item">
+                      <a class="nav-link" href="/usersetup">UserSetup</a>
+                    </li><li class="nav-item">
+                      <a class="nav-link" href="/devicesetup">DeviceSetup</a>
+                    </li>
+                  {{/if}}
                 {{else}}
                 <li class="nav-item">
                   <a class="nav-link" href="/login">Login</a>
