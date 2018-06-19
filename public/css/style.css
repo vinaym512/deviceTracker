@@ -15,6 +15,12 @@ body {
   color: white;
   background: orange; }
 
+  .txtbx {
+    font-size: 20px;
+    color: white;
+    background: olive;
+  }
+
 .datentime {
   font-size: 10px; }
 

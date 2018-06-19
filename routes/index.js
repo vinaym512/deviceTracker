@@ -4,6 +4,11 @@ var expressValidator = require('express-validator');
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 var passport = require('passport');
+var loggedinUserId;
+var loggedinUserName;  
+var loggedinUserEmail;
+var isAuditor;
+var isAdmin;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -26,18 +31,23 @@ router.get('/usersetup',authenticationMiddleware(), function(req, res, next) {
 router.get('/profile', authenticationMiddleware(), function(req, res, next) {
     const errors = req.validationErrors();
     var loggeduserId = JSON.stringify(req.user);
-    var loggeduserIdStr = loggeduserId.slice(11, -1);
+    loggedinUserId = loggeduserId.slice(11, -1);
     var devicelocation;
     var loggedUserName;  
-    var isAdmin;
-    var isAuditor;
+    var mAuditDate;
+    var fAuditDate;
     
     const db = require('../db.js');
-    db.query('SELECT username FROM users WHERE ?',[{user_id:loggeduserIdStr}], function(err, result, fields){
+    db.query('SELECT username, email FROM users WHERE ?',[{user_id:loggedinUserId}], function(err, result, fields){
         if (err) throw err;
-        loggedUserName = result[0].username;
+        loggedinUserName = result[0].username;
+        loggedinUserEmail = result[0].email;
+        console.log('----------------loggedinUserId------------',loggedinUserId)
+        console.log('----------------loggedinUserName----------',loggedinUserName)
+        console.log('----------------loggedinUserEmail---------',loggedinUserEmail)
+        
 
-        db.query('SELECT access_level FROM user_permissions WHERE ?',[{username:loggedUserName}], function(err, result, fields){
+        db.query('SELECT access_level FROM user_permissions WHERE ?',[{username:loggedinUserName}], function(err, result, fields){
                 if (err) throw err;
                 else{
                     if(result.length != 0){
@@ -45,10 +55,25 @@ router.get('/profile', authenticationMiddleware(), function(req, res, next) {
                         if(result[0].access_level.toLowerCase()=='admin') isAdmin = true;
                     }
                 }
+                console.log('----------------isAdmin-------------------',isAdmin)
+                db.query('SELECT DATE_FORMAT(max(audit_date), "%D %b %Y-%T") as audit_date FROM audit WHERE ?',[{location:'Martian'}], function(err, result, fields){
+                if (err) throw err;
+                else{
+                    if(result.length != 0){
+                        mAuditDate = result[0].audit_date;
+                    }
+                }
+            });
+                db.query('SELECT DATE_FORMAT(max(audit_date), "%D %b %Y-%T") as audit_date FROM audit WHERE ?',[{location:'Foxsports'}], function(err, result, fields){
+                if (err) throw err;
+                else{
+                    if(result.length != 0) fAuditDate = result[0].audit_date;
+                }
+            });
         db.query('SELECT a.device_id, b.user_id as userid, a.username, DATE_FORMAT(a.date_allocated, "%D %b %Y-%T") as date_allocated, a.username as instore, a.location as mlocation, a.location as flocation, a.os_version from device_allocation a, users b WHERE b.username = a.username order by device_id', function(err, result, fields){
             if (err) throw err;
             for(i = 0; i< result.length; ++i) {
-              if(result[i].userid != loggeduserIdStr){
+              if(result[i].userid != loggedinUserId){
                 result[i].userid = '';
             }
             if(result[i].instore != 'In-Store'){
@@ -60,58 +85,51 @@ router.get('/profile', authenticationMiddleware(), function(req, res, next) {
                 result[i].mlocation  = '';
             }
         }
-        
+        res.render('profile', { title: 'Profile', deviceData: result, loggedUser:loggedinUserName, isAdmin, isAuditor, mAuditDate, fAuditDate});
+    });  
+    });  
+});
+});
 
-        res.render('profile', { title: 'Profile', deviceData: result, loggedUser:loggedUserName, isAdmin, isAuditor});
-    });  
-    });  
-});
-});
 
 router.post('/book_device', authenticationMiddleware(), function(req, res, next) {
-    var loggedinUserId = req.user;
-    var loggedinUserName;
-    var deviceId = JSON.stringify(req.body);
-    var deviceIdStr = deviceId.slice(13, -2);
+    
+    var deviceIdStr= (JSON.stringify(req.body)).slice(13, -2);
     var dispUserNDevice = deviceIdStr.split("/");
     var dispDeviceId = dispUserNDevice[0];
     var dispUserName = dispUserNDevice[1];
     var status;
     
     const db = require('../db.js');
-    db.query('SELECT username FROM users WHERE ?',[loggedinUserId], function(err, result, fields){
-        if (err) {
-            throw err;
-        }else{
-            loggedinUserName = result[0].username;
-            if(loggedinUserName == dispUserName){
-                db.query('UPDATE  device_allocation SET ? WHERE ? AND ?',[{username:'In-Store'},{username:loggedinUserName},{device_id:dispDeviceId}], function(err, result, fields){
-                    if (err) throw err;});
-                status="RELEASED";
-            }else{
-                if(loggedinUserName != dispUserName && dispUserName === 'In-Store'){
-                    db.query('UPDATE  device_allocation SET ? WHERE ? AND ?',[{username:loggedinUserName},{username:'In-Store'},{device_id:dispDeviceId}], function(err, result, fields){
-                        if (err) throw err; });
-                    status="AQUIRED";
-                }
-            }
+    if(loggedinUserName == dispUserName){
+        db.query('UPDATE  device_allocation SET ? WHERE ? AND ?',[{username:'In-Store'},{username:loggedinUserName},{device_id:dispDeviceId}], function(err, result, fields){
+            if (err) throw err;});
+        status="RELEASED";
+    }else{
+        if(loggedinUserName != dispUserName && dispUserName === 'In-Store'){
+            db.query('UPDATE  device_allocation SET ? WHERE ? AND ?',[{username:loggedinUserName},{username:'In-Store'},{device_id:dispDeviceId}], function(err, result, fields){
+                if (err) throw err; });
+            status="AQUIRED";
         }
-        db.query('INSERT INTO device_transactions (device_id, username, status) VALUES (?, ?, ?)', [dispDeviceId, loggedinUserName, status], function(error, results, fields){
-            if (error) throw error;
-        });
-    });    
+    }
+    db.query('INSERT INTO device_transactions (device_id, username, status) VALUES (?, ?, ?)', [dispDeviceId, loggedinUserName, status], function(error, results, fields){
+        if (error) throw error;
+    });
     res.redirect('/profile');
 });
 
-/*update Audit status*/    
-router.post('/audit', authenticationMiddleware(), function(req, res, next){
-
-    var userId =  JSON.stringify(req.session.passport);
-    var userIdStr = userId.slice(19, -2);
-    
+/*update Audit status Martian*/    
+router.post('/auditMartian', authenticationMiddleware(), function(req, res, next){
     const db = require('../db.js');
-
-    db.query('INSERT INTO audit (username, status) VALUES ((SELECT username FROM users WHERE ?), ?)', [{user_id:userIdStr}, 'COMPLETE'], function(error, results, fields){ 
+    db.query('INSERT INTO audit (username, status, location) VALUES ((SELECT username FROM users WHERE ?), ?, ?)', [{user_id:loggedinUserId}, 'COMPLETE', 'Martian'], function(error, results, fields){ 
+        if (error) throw error;
+    });
+    res.redirect('/profile');
+});
+/*update Audit status Foxsports*/  
+router.post('/auditFoxsports', authenticationMiddleware(), function(req, res, next){
+    const db = require('../db.js');
+    db.query('INSERT INTO audit (username, status, location) VALUES ((SELECT username FROM users WHERE ?), ?, ?)', [{user_id:loggedinUserId}, 'COMPLETE', 'Foxsports'], function(error, results, fields){ 
         if (error) throw error;
     });
     res.redirect('/profile');
@@ -125,7 +143,7 @@ router.post('/login', passport.authenticate('local', {
 
 /* Get Reset Password page*/
 router.get('/register', function(req, res, next) {
-  res.render('register', { title: 'Registration' });
+  res.render('register', { title: 'Registration', loggedinUserEmail});
 });
 
 /* POST user changed password. */
@@ -140,7 +158,7 @@ router.post('/register', authenticationMiddleware(), function(req, res, next) {
 
     if (errors) {
         console.log(`errors: ${JSON.stringify(errors)}`);
-        res.render('register', {title:'Register', errors: errors});
+        res.render('register', {title:'Register', errors:errors, loggedinUserEmail});
     }
     else{
         const email = req.body.email;
@@ -187,6 +205,8 @@ router.post('/usersetup', authenticationMiddleware(), function(req, res, next) {
     const db = require('../db.js');
 
     //check if email id is already present?
+    console.log('---------------isAdmin-----------',isAdmin)
+    if(isAdmin){
     db.query('SELECT email FROM users WHERE email = ?',[email], function(err, result, fields){
     if (err) {
         throw err;
@@ -207,6 +227,9 @@ router.post('/usersetup', authenticationMiddleware(), function(req, res, next) {
         }
     }//else
     });
+}else{
+    res.render('usersetup', {title: 'User SetUp...FAILED - No admin rigths'});
+}
 });
 
 //Device setup
@@ -219,6 +242,7 @@ router.post('/devicesetup', function(req, res, next) {
     const db = require('../db.js');
 
     //check if email id is already present?
+    if(isAdmin){
     db.query('SELECT device_id FROM device_allocation WHERE device_id = ?',[deviceid], function(err, result, fields){
     if (err) {
         throw err;
@@ -238,6 +262,9 @@ router.post('/devicesetup', function(req, res, next) {
         }
     }//else
 });
+}else{
+    res.render('devicesetup', {title:'Device SetUp...FAILED - No admin rigths'});
+}
 });
 
 

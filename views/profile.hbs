@@ -45,9 +45,19 @@
                     </button>
                     {{/if}}
                 {{/each}}
-                
             </div>
-
+        </form>
+        <div>             
+             {{#if isAuditor}}
+                 <form method="POST" action="/auditMartian">
+                     <p class="text-center txtbx" style="display: inline;">Last audited on - {{mAuditDate}} </p>
+                     <input class="btn btn-primary btn-sm float-right" type="submit" value="Audit Martian">
+                 </form>
+             {{else}}
+                 <p class="text-center txtbx" style="display: inline;">Last audited on - {{mAuditDate}} </p>
+             {{/if}}  
+        </div>
+        <form method="POST" action="/book_device">
              <div>
                 <button type="button" class="btn btn-primary"> Foxsports Devices</button>
                 {{#each deviceData}}
@@ -90,14 +100,16 @@
                 {{/each}}
             </div>
          </form>
-         
-         <div>
+         <div>             
              {{#if isAuditor}}
-                 <form method="POST" action="/audit">
-                     <input class="btn btn-primary" type="submit" value="Audit">
+                 <form method="POST" action="/auditFoxSports">
+                     <p class="text-center txtbx" style="display: inline;">Last audited on - {{fAuditDate}} </p>
+                     <input class="btn btn-primary btn-sm float-right" type="submit" value="Audit Foxsports">
                  </form>
-             {{/if}}
+             {{else}}
+                 <p class="text-center txtbx" style="display: inline;">Last audited on - {{fAuditDate}} </p>
+             {{/if}}  
          </div>
         
-    </div> 
+    
                 
