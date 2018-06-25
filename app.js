@@ -24,7 +24,7 @@ var app = express();
 require('dotenv').config();
 
 var MySQLStore = require('express-mysql-session')(session);
-
+const db = require('./db.js');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
@@ -76,7 +76,7 @@ passport.use(new LocalStrategy(
     console.log(username);
     console.log(password);
 
-    const db = require('./db');
+    //const db = require('./db');
       db.query('SELECT user_id, password from users where email = ?', [username], function(err, result, fields){
       if(err) { done(err)};
       if(result.length == 0){
